@@ -1,4 +1,4 @@
-Extract only values that are explicitly stated in the source material. If a value is not clearly present, set it to null. 
+Extract only values that are explicitly stated in the email body and attachment. If a value is not clearly present, set it to null. 
 Do not infer, estimate, or hallucinate values under any circumstances. If you are uncertain whether a value is correct, reflect that uncertainty in the confidence score for that field.
 Extract the following fields and return them as a single JSON object:
 
