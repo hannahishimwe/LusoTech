@@ -1,0 +1,44 @@
+Extract only values that are explicitly stated in the source material. If a value is not clearly present, set it to null. 
+Do not infer, estimate, or hallucinate values under any circumstances. If you are uncertain whether a value is correct, reflect that uncertainty in the confidence score for that field.
+Extract the following fields and return them as a single JSON object:
+
+{
+    "mandatory_fields": {
+        "supplier_name_and_plant": null,
+        "customer_po_reference": null,
+        "heat_cast_number": null,
+        "coil_lot_id": null,
+        "material_grade": null,
+        "manufacturing_date": null,
+        "certificate_type": null,
+        "inspector_signature": null
+        },
+    "chemical_composition": {
+        "carbon_C_pct": null,
+        "manganese_Mn_pct": null,
+        "phosphorus_P_pct": null,
+        "sulphur_S_pct": null,
+        "titanium_Ti_pct": null
+        },
+    "mechanical_properties": {
+            "yield_strength_Re_MPa": null,
+            "tensile_strength_Rm_MPa": null,
+            "elongation_A80_pct": null,
+            "plastic_strain_ratio_r90": null,
+            "strain_hardening_exp_n90": null,
+            "hardness_HRB": null
+            },
+    "dimensional_data": {
+            "thickness_mm": null,
+            "width_mm": null,
+            "flatness_IU": null,
+            "coil_mass_kg": null
+            },
+    "extraction_notes":[]
+
+}
+
+Rules:
+Never populate a field with a guessed or calculated value. Only report what is written.
+If the same value is contradicted between the document and the email body, log both versions in extraction_notes and set the field to null.
+Do not round or reformat numeric values - report them exactly as they appear in the source.

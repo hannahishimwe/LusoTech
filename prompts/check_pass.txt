@@ -1,0 +1,48 @@
+Examine this data: ((Data))
+
+Take this route if and only if ALL of the following are true simultaneously:
+
+1. All eight mandatory fields are present and non-null:
+   * supplier_name_and_plant
+   * customer_po_reference
+   * heat_cast_number
+   * coil_lot_id
+   * material_grade
+   * manufacturing_date
+   * certificate_type
+   * inspector_signature
+
+2. All chemical composition values are within their maximum limits:
+   * carbon_C_pct ≤ 0.080
+   * manganese_Mn_pct ≤ 0.400
+   * phosphorus_P_pct ≤ 0.030
+   * sulphur_S_pct ≤ 0.030
+   * titanium_Ti_pct ≤ 0.300
+
+3. All mechanical properties are within their limits:
+   * yield_strength_Re_MPa ≥ 140 AND ≤ 210
+   * tensile_strength_Rm_MPa ≥ 270 AND ≤ 350
+   * elongation_A80_pct ≥ 38
+   * plastic_strain_ratio_r90 ≥ 1.6
+   * strain_hardening_exp_n90 ≥ 0.18
+   * hardness_HRB ≤ 60
+
+4. No chemical or mechanical field is null. A null value cannot satisfy a PASS.
+
+Output only the following JSON. Do not add any text outside it:
+
+{
+  "verdict": "PASS" | "NOT_PASS",
+  "failed_checks": []
+}
+
+If verdict is PASS, failed_checks must be empty.
+If verdict is NOT_PASS, populate failed_checks with every specific check
+that failed using this format:
+
+{
+  "field": "field_name",
+  "reason": "plain English explanation",
+  "reported_value": null,
+  "limit": "the spec limit that was not met"
+}
