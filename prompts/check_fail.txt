@@ -1,4 +1,4 @@
-Examine this data: ((Data))
+Examine the json below.
 
 This is the final verdict node. PASS and CONDITIONAL have already been 
 ruled out. Take this route if ANY of the following are true:

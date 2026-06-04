@@ -1,4 +1,4 @@
-Examine this data: ((Data))
+Examine the json below.
 
 Take this route if and only if ALL of the following are true simultaneously:
 
