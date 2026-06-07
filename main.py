@@ -12,11 +12,25 @@ from workflow.act import (
     build_hold_email_node,
     build_fail_email_node,
 )
+import json
+import time 
+from pathlib import Path
+COA_FILES = {
+    1: "data/Acerlux_CoA_998772.pdf",
+    2: "data/Acerlux_CoA_998773.pdf",
+}
 
+EMAIL_FILE = "data/supplier_email.txt"
+
+def extract_pdf_text(path: str) -> str:
+    import fitz
+    doc = fitz.open(path)
+    return "\n".join(page.get_text() for page in doc) # type: ignore
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--api-key", required=True)
+    parser.add_argument("--coa", type=int, choices=[1, 2], help="CoA sample to run (1 or 2)")
     args = parser.parse_args()
     client = Client(api_key=args.api_key)
 
@@ -123,6 +137,28 @@ def main():
     # =====================
     saved = client.workflows.save(wf)
     print("Created workflow:", saved.id)
+    if args.coa:
+        email_body = Path(EMAIL_FILE).read_text()
+        attachment = extract_pdf_text(COA_FILES[args.coa])
+
+        print(f"\nRunning with CoA #{args.coa}: {COA_FILES[args.coa]}")
+        print(f"Email: {len(email_body)} chars, Attachment: {len(attachment)} chars")
+
+        result = saved.run(body={
+            "email_body": email_body,
+            "attachment": attachment,
+        })
+
+        print(f"Run id: {result.id}")
+
+        for _ in range(40):
+            time.sleep(5)
+            result = client.runs.get(saved.id, result.id)
+            print(f"  status: {result.status}")
+            if result.status in ("completed", "failed", "error"):
+                print("\n=== output ===")
+                print(json.dumps(result.output, indent=2))
+                break
 
 
 if __name__ == "__main__":

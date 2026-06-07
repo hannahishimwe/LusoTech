@@ -55,11 +55,11 @@ def build_category_router_node(workflow_def):
             "logic": "OR",
             "condition_type": "REGULAR",
             "regular_condition": {
-                "field_type": "TEXT",
-                "field": "((category))",
+                "field": {"label": "category", "value": "category"},
                 "condition": "CONTAINS",
+                "field_type": "TEXT",
                 "text_value": "PASS",
-                "number_value": 0
+                "number_value": 0,
             }
         }],
         output_true="((category))",
@@ -72,11 +72,11 @@ def build_category_router_node(workflow_def):
             "logic": "OR",
             "condition_type": "REGULAR",
             "regular_condition": {
-                "field_type": "TEXT",
-                "field": "((category))",
+                "field": {"label": "category", "value": "category"},
                 "condition": "CONTAINS",
+                "field_type": "TEXT",
                 "text_value": "CONDITIONAL",
-                "number_value": 0
+                "number_value": 0,
             }
         }],
         output_true="((category))",

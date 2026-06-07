@@ -34,6 +34,8 @@ def build_lot_insert_node(workflow_def, status: str):
         headers='{"Content-Type": "application/json"}',
         body=f'{{"extracted_json": ((extracted_json)), "category": "((category))", "reasoning": "((reasoning))", "status": "{status}", "erp_receipt_posted": {erp_posted}, "po_acceptance_blocked": {po_blocked}}}',
         parse_json=True,
+        on_error_behavior="skip",
+        has_on_error_output=True,
         inputs={"inputs": {"keys": ["extracted_json", "category", "reasoning"]}},
     )
 
