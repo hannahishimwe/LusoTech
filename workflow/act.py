@@ -53,7 +53,7 @@ Fail rationale: ((reasoning))
 Include: NCR header, supplier details, material details, list of failed checks citing the spec rule, recommended disposition (quarantine), and signature block for SQE review.""",
         model=["claude-4.5-sonnet"],
         temperature=0.0,
-        max_tokens=600,
+        max_tokens=1000,
         inputs={"variables": {"keys": ["extracted_json", "reasoning", "category"]}},
     )
 
