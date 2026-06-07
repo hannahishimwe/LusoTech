@@ -38,7 +38,6 @@ BEHAVIOUR
      lots       — coil_lot_id, cert_number, po_reference, supplier_id, heat_number,
                   material_grade, status, erp_receipt_posted, failed_checks,
                   verdict, verdict_reasoning, created_at, status_updated_at
-     ncr_drafts — id, lot_id, supplier_id, fail_reasons, status, assigned_to, created_at
      suppliers  — id, name, is_approved
 
    Format: table?select=col1,col2&filter=eq.value&order=col.desc&limit=50

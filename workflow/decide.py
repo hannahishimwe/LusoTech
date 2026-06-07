@@ -93,18 +93,3 @@ def build_category_router_node(workflow_def):
 
 
 
-def build_verdict_node(workflow_def, verdict: str):
-    prompt = load_prompt(f"{verdict.lower()}.txt")  # pass.txt, conditional.txt, fail.txt
-    return workflow_def.node("TextGenerationNode").config(
-        system_prompt="""You are a strict supplier quality decision engine.
-You evaluate DC04 steel CoA extraction data against specification LSQ-SPEC-DC04-r3.
-Output only valid JSON. Never add commentary outside the JSON object.""",
-        template=f"""{prompt}
-
-Extracted CoA JSON:
-((extracted_json))""",
-        model=["claude-4.5-sonnet"],
-        temperature=0.0,
-        max_tokens=1000,
-        inputs={"variables": {"keys": ["extracted_json"]}},
-    )
