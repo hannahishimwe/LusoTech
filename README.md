@@ -101,16 +101,28 @@ The source workspace and workflow ID are hardcoded in `migrate.py`. Command line
 
 **One email at a time**
 The pipeline is manually triggered with a single email body and attachment as inputs. Each CoA is processed individually — it may be possible the Noxus platform supports iterating over multiple attachments but this was not found during development, and would be something to explore further. In production a loop or fan-out pattern at ingestion would be the ideal approach.
+
+
 **Attachment ingested as plain text**
 The CoA attachment is passed into the workflow as extracted text rather than a raw document. The DocumentQA node was explored for PDF ingestion but did not produce structured, predictable extraction output consistently enough to feed reliably into the validation step. Passing the attachment as pre-extracted text gave stable, well-formed JSON every time.
+
+
 **DB insert extended to all verdicts**
 The requirements specified database inserts for passing CoAs only. This was extended to cover PASS, CONDITIONAL, and FAIL verdicts so every lot is traceable and queryable regardless of outcome. This makes the query agent significantly more useful for the SQE team — they can filter by verdict, supplier, date range, and failed checks across the full history.
+
+
 **Output nodes instead of live email**
 The notification emails are written to workflow output nodes rather than sent via a real email integration. This was due to not having live credentials for an email provider. In production these would connect directly to an SMTP integration or a service like Resend.
+
+
 **Agent URL construction**
 Rather than using an LLM node to construct full Supabase REST URLs (which proved unreliable in testing), the base URL is hardcoded in the API node and the agent is instructed to supply only the table name and query string. This removes an entire failure point and produces consistent results.
+
+
 **ERP and PO flags represented as database fields**
 The spec defines three actions on verdict: write to ERP, block PO acceptance, and notify warehouse. Without access to a live ERP or PO system, these are represented as boolean fields on the lots table — erp_receipt_posted and po_acceptance_blocked — which are set automatically based on verdict. In a real integration these flags would trigger actual ERP transactions and procurement system updates.
+
+
 **Row Level Security disabled on Supabase**
 RLS (Row Level Security) has been disabled on the Supabase tables to allow the workflow API nodes to read and write without authentication friction during development. This would never be acceptable in production, in a real deployment RLS policies would be enabled and the workflow would authenticate using a service role key scoped to only the operations it needs.
 
