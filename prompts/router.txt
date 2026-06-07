@@ -1,0 +1,65 @@
+You are evaluating extracted Certificate of Analysis (CoA) data for DC04 cold-rolled steel against specification LSQ-SPEC-DC04-r3.
+
+Follow this strict decision hierarchy:
+
+============================================================
+FAIL RULES (highest priority)
+============================================================
+
+Set verdict = "FAIL" if ANY condition is true:
+
+- Any mandatory field is missing or null
+- Any critical chemical exceeds limits:
+  carbon_C_pct > 0.080
+  phosphorus_P_pct > 0.030
+  sulphur_S_pct > 0.030
+
+- Any critical mechanical property is out of range:
+  yield_strength_Re_MPa < 140 OR > 210
+  tensile_strength_Rm_MPa < 270 OR > 350
+
+- More than one non-critical property is out of tolerance
+
+- Any non-critical deviation > 2%
+
+============================================================
+CONDITIONAL RULES
+============================================================
+
+Set verdict = "CONDITIONAL" if:
+
+- All mandatory fields present
+- All critical limits satisfied
+- Exactly ONE non-critical property out of tolerance
+- That deviation ≤ 2%
+
+============================================================
+PASS RULES
+============================================================
+
+Set verdict = "PASS" if:
+
+- All mandatory fields present
+- All chemical + mechanical properties within limits
+- No null values
+- No non-critical deviations
+
+============================================================
+FAILED CHECKS RULE
+============================================================
+
+For every violated rule:
+- Add one entry to failed_checks with:
+  field
+  reason
+  limit
+  reported_value (if known)
+  deviation_pct (if applicable)
+  is_critical (true/false)
+
+============================================================
+OUTPUT REQUIREMENT
+============================================================
+
+Return ONLY valid JSON matching the schema.
+Do not include explanations outside JSON.

@@ -1,12 +1,11 @@
 Examine the json below.
-
-This is the final verdict node. PASS and CONDITIONAL have already been 
+This is the final verdict node. PASS and CONDITIONAL have already been
 ruled out. Take this route if ANY of the following are true:
 
 1. One or more mandatory fields are null or missing:
-   * supplier_name_and_plant
-   * customer_po_reference
-   * heat_cast_number
+   * supplier_name
+   * po_reference
+   * heat_number
    * coil_lot_id
    * material_grade
    * manufacturing_date
@@ -14,21 +13,21 @@ ruled out. Take this route if ANY of the following are true:
    * inspector_signature
 
 2. Any critical chemical element exceeds its maximum:
-   * carbon_C_pct > 0.080
-   * phosphorus_P_pct > 0.030
-   * sulphur_S_pct > 0.030
+   * carbon_c_pct > 0.080
+   * phosphorus_p_pct > 0.030
+   * sulphur_s_pct > 0.030
 
 3. Any critical mechanical property is outside its limits:
-   * yield_strength_Re_MPa < 140 OR > 210
-   * tensile_strength_Rm_MPa < 270 OR > 350
+   * yield_strength_re_mpa < 140 OR > 210
+   * tensile_strength_rm_mpa < 270 OR > 350
 
 4. Any non-critical property deviates from its limit by more than 2%:
-   * manganese_Mn_pct — max 0.400 — deviation = ((value − 0.400) / 0.400) × 100
-   * titanium_Ti_pct — max 0.300 — deviation = ((value − 0.300) / 0.300) × 100
-   * elongation_A80_pct — min 38 — deviation = ((38 − value) / 38) × 100
+   * manganese_mn_pct — max 0.400 — deviation = ((value − 0.400) / 0.400) × 100
+   * titanium_ti_pct — max 0.300 — deviation = ((value − 0.300) / 0.300) × 100
+   * elongation_a80_pct — min 38 — deviation = ((38 − value) / 38) × 100
    * plastic_strain_ratio_r90 — min 1.6 — deviation = ((1.6 − value) / 1.6) × 100
    * strain_hardening_exp_n90 — min 0.18 — deviation = ((0.18 − value) / 0.18) × 100
-   * hardness_HRB — max 60 — deviation = ((value − 60) / 60) × 100
+   * hardness_hrb — max 60 — deviation = ((value − 60) / 60) × 100
 
 5. More than one non-critical property is out of tolerance regardless of
    deviation magnitude.
@@ -37,7 +36,6 @@ ruled out. Take this route if ANY of the following are true:
    is treated as FAIL, not CONDITIONAL.
 
 Output only the following JSON. Do not add any text outside it:
-
 {
   "verdict": "FAIL",
   "rationale": "plain English summary of every reason this lot failed",
@@ -50,13 +48,7 @@ Output only the following JSON. Do not add any text outside it:
       "deviation_pct": null,
       "is_critical": true
     }
-  ],
-  "actions": {
-    "quarantine_lot": true,
-    "auto_draft_ncr": true,
-    "block_po_acceptance": true,
-    "notify": "SQE"
-  }
+  ]
 }
 
 Rules:
@@ -64,8 +56,8 @@ Rules:
 - failed_checks must list every triggered condition, not just the first one
 - deviation_pct is null for mandatory field failures and critical property
   failures — only calculate it for non-critical property failures
-- is_critical is true for any mandatory field, carbon, phosphorus, sulphur,
-  yield strength, or tensile strength failure
+- is_critical is true for any mandatory field, carbon_c_pct, phosphorus_p_pct,
+  sulphur_s_pct, yield_strength_re_mpa, or tensile_strength_rm_mpa failure
 - is_critical is false for all non-critical property failures
 - rationale must be a single human readable string citing every failure
   reason — this will be used in the NCR draft and SQE email

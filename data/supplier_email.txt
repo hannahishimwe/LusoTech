@@ -1,0 +1,31 @@
+From:    Aitor Beltrán <quality@acerlux.es>
+To:      sqe-inbox@lusotech.pt
+Cc:      logistica@acerlux.es; warehouse@lusotech.pt
+Date:    Thu, 14 May 2026 09:42:18 +0200
+Subject: [Acerlux] CoA — 2 coils DC04, PO-2026-04471 & PO-2026-04472 — ETA Mon
+Attachments: Acerlux_CoA_998772.pdf (218 KB), Acerlux_CoA_998773.pdf (224 KB)
+
+
+Olá Lusotech SQE team,
+
+Adjunto los certificados de análisis para los dos coils DC04 que salen
+hoy desde Bilbao con destino a vuestra Planta 2:
+
+  • Coil CL-DC04-998772  — heat H-AC-258401 — PO-2026-04471
+  • Coil CL-DC04-998773  — heat H-AC-258402 — PO-2026-04472
+
+Ambos cumplen con la especificación EN 10130 y vuestras tolerancias
+acordadas. El segundo coil (998773) tuvo un pequeño ajuste de setpoint
+en el laminador y fue re-testado el día 13 — los valores del PDF son
+los de la segunda prueba, que es la válida.
+
+ETA Porto Plant 2: lunes 18-Mayo, mañana. Transportista: Transglobal,
+carta de porte CMR-2026-7791.
+
+Cualquier duda, decid.
+
+Saludos,
+
+Aitor Beltrán
+QA Inspector — Acerlux Metals, S.A.
++34 944 22 11 47  ·  quality@acerlux.es
