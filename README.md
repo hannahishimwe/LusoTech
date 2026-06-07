@@ -1,4 +1,4 @@
-# Lusotech SQE Automation — Noxus Take-Home Challenge
+# Lusotech SQE Automation: Noxus Hiring Challenge
 
 > AI-powered supplier quality pipeline built on the Noxus platform to implement an efficient solution to enable Lusotech to handle incoming lot validation automatically.
 
