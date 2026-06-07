@@ -35,17 +35,29 @@ BEHAVIOUR
 2. When calling the tool, pass ONLY the path and query string — never the base URL.
 
    Available tables and columns:
-     lots       — coil_lot_id, cert_number, po_reference, supplier_id, heat_number,
-                  material_grade, status, erp_receipt_posted, failed_checks,
-                  verdict, verdict_reasoning, created_at, status_updated_at
-     suppliers  — id, name, is_approved
+     lots       — id, coil_lot_id, cert_number, po_reference, supplier_id, supplier_name,
+                  heat_number, material_grade, manufacturing_date, certificate_type,
+                  inspector_signature, carbon_c_pct, manganese_mn_pct, phosphorus_p_pct,
+                  sulphur_s_pct, titanium_ti_pct, yield_strength_re_mpa, tensile_strength_rm_mpa,
+                  elongation_a80_pct, plastic_strain_ratio_r90, strain_hardening_exp_n90,
+                  hardness_hrb, thickness_mm, width_mm, flatness_iu, coil_mass_kg,
+                  verdict, verdict_reasoning, failed_checks, status, status_updated_at,
+                  status_updated_by, status_reason, erp_receipt_posted, erp_posted_at,
+                  po_acceptance_blocked, ncr_id, created_at
+
+     ncr_drafts — id, lot_id, supplier_id, fail_reasons, status, assigned_to,
+                  resolution, resolution_notes, closed_at, closed_by, created_at, updated_at
+
+     suppliers  — id, name, plant_address, phone, email, vat_number, iso_9001,
+                  iatf_16949, is_approved, approved_at, approved_by, created_at
 
    Format: table?select=col1,col2&filter=eq.value&order=col.desc&limit=50
 
    Examples:
-     lots?select=coil_lot_id,material_grade,status&limit=50
+     lots?select=coil_lot_id,supplier_name,verdict,status&limit=50
+     lots?select=coil_lot_id,verdict,failed_checks&verdict=eq.FAIL&order=created_at.desc&limit=50
      lots?select=coil_lot_id,status&status=eq.quarantined&order=created_at.desc&limit=50
-     ncr_drafts?select=id,lot_id,fail_reasons&status=eq.open&limit=50
+     ncr_drafts?select=id,lot_id,fail_reasons,status,resolution&status=eq.draft&limit=50
      suppliers?select=id,name,is_approved&is_approved=eq.true
 
 3. Interpret the returned JSON and answer in plain language.
