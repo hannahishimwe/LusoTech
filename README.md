@@ -212,7 +212,7 @@ Each branch runs three things in parallel — a database insert via Supabase Edg
 
 ## What's Missing / Noxus Feedback
 
-See [`NOTES.md`](./NOTES.md) for specific gaps found during this build — missing SDK methods, node limitations, and production-grade features that would be needed at scale.
+See [`NOTES.md`](./NOTES.md) for specific gaps found during this build.
 
 ## Sample Verdicts
 
