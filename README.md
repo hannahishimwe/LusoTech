@@ -68,12 +68,7 @@ Then open your Noxus workspace, find **"SQE Pipeline"**, and run it manually inp
 python agent/agent.py
 ```
 
-Then open the agent in your Noxus workspace and ask questions like:
-- *"Show me all quarantined lots"*
-- *"Which suppliers have the most NCRs?"*
-- *"Give me a breakdown of verdicts this month"*
-
-
+Then open the agent in your Noxus workspace and ask questions.
 
 ## Migration Script
 
