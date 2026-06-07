@@ -2,13 +2,13 @@
 
 > AI-powered supplier quality pipeline built on the Noxus platform to implement an efficient solution to enable Lusotech to handle incoming lot validation automatically.
 
----
+
 
 ## Demo
 
-📹 [Screen recording walkthrough](YOUR_LINK_HERE)
+📹 [Screen recording walkthrough](https://github.com/user-attachments/assets/a6b870e1-ea84-4298-9fea-c7e49d9ebe5d)
 
----
+
 
 ## What Was Built
 
@@ -18,7 +18,7 @@
 | **Query Agent** | Noxus agent for querying lot/NCR/supplier data with guardrails and visual artifacts |
 | **Migration Script** | CLI tool to migrate the workflow from staging to a target workspace |
 
----
+
 
 ## Setup
 
@@ -46,7 +46,7 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your_supabase_anon_key
 ```
 
----
+
 
 ## Running the Pipeline
 
@@ -56,7 +56,7 @@ python main.py --api-key YOUR_NOXUS_API_KEY
 ```
 Then open your Noxus workspace, find **"SQE Pipeline"**, and run it manually inputting the sample email and CoA inputs provided.
 
----
+
 
 ## Running the Query Agent
 
@@ -69,7 +69,7 @@ Then open the agent in your Noxus workspace and ask questions like:
 - *"Which suppliers have the most NCRs?"*
 - *"Give me a breakdown of verdicts this month"*
 
----
+
 
 ## Migration Script
 
@@ -84,7 +84,7 @@ python migrate.py --target-api-key TARGET_WORKSPACE_KEY --overwrite
 ```
 
 The source workspace and workflow ID are hardcoded in `migrate.py`. Command line arguments only requires target API key.
----
+
 
 ## Project Structure
 
@@ -115,9 +115,6 @@ The spec defines three actions on verdict: write to ERP, block PO acceptance, an
 **Row Level Security disabled on Supabase**
 RLS (Row Level Security) has been disabled on the Supabase tables to allow the workflow API nodes to read and write without authentication friction during development. This would never be acceptable in production, in a real deployment RLS policies would be enabled and the workflow would authenticate using a service role key scoped to only the operations it needs.
 
----
-
-## Database Schema
 
 ## Database Schema
 
@@ -182,7 +179,6 @@ Three tables underpin the pipeline. All inserts are handled via a Supabase Edge 
 | erp_receipt_posted | boolean | ERP flag |
 | po_acceptance_blocked | boolean | PO block flag |
 
----
 
 ## Workflow Overview
 
@@ -201,13 +197,11 @@ The extracted JSON is passed to an EnsembleCategorizerNode which validates every
 
 **Act**
 Each branch runs three things in parallel — a database insert via Supabase Edge Function setting the correct lot status (released, held, or quarantined), an email notification generated for the relevant team, and on FAIL an NCR draft is generated before the email. All three branches write to an OutputNode so the result is visible in the Noxus workspace.
----
+
 
 ## What's Missing / Noxus Feedback
 
 See [`NOTES.md`](./NOTES.md) for specific gaps found during this build — missing SDK methods, node limitations, and production-grade features that would be needed at scale.
-
----
 
 ## Sample Verdicts
 
@@ -216,7 +210,6 @@ See [`NOTES.md`](./NOTES.md) for specific gaps found during this build — missi
 | Acerlux_CoA_998772 | **PASS** | All mandatory fields present, all chemical and mechanical values within spec |
 | Acerlux_CoA_998773 | **CONDITIONAL** | Re_MPa = 215, exceeds upper limit of 210 by 2.4% — single critical deviation |
 
----
 
 ## Extensions/If I Had More Time
 **Reasoning field causes Supabase insert failures**
@@ -230,4 +223,8 @@ See [`NOTES.md`](./NOTES.md) for specific gaps found during this build — missi
 
 ## Author
 
-Hannah
+Hannah Ishimwe
+
+
+
+
