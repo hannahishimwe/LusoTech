@@ -14,6 +14,11 @@ https://github.com/user-attachments/assets/a6b870e1-ea84-4298-9fea-c7e49d9ebe5d
 
 https://github.com/user-attachments/assets/9d6e034c-005f-4d90-9174-67b3bcbe2530
 
+**Example query agent visualisation of data**
+
+<img width="604" height="324" alt="agent" src="https://github.com/user-attachments/assets/36590cbd-b63d-4403-9fdf-d71ca99e6ad2" />
+
+
 ## What Was Built
 
 | Component | Description |
