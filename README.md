@@ -105,6 +105,8 @@ The pipeline is manually triggered with a single email body and attachment as in
 **Attachment ingested as plain text**
 The CoA attachment is passed into the workflow as extracted text rather than a raw document. The DocumentQA node was explored for PDF ingestion but did not produce structured, predictable extraction output consistently enough to feed reliably into the validation step. Passing the attachment as pre-extracted text gave stable, well-formed JSON every time.
 
+**Model selection: claude-sonnet-4-5**
+All text generation nodes in this pipeline use `claude-sonnet-4-5` at temperature=0.0. The rationale is consistency and reliability over cost optimisation at this level of scope.  Sonnet's stronger instruction-following ensures the output format constraints are respected even when the input data is messy. However, a future optimisation pass could downgrade the summary and email nodes to `claude-haiku-4-5`, which would reduce latency and token cost with negligible quality impact given the constrained prompts.
 
 **DB insert extended to all verdicts**
 The requirements specified database inserts for passing CoAs only. However, I felt this should be extended to cover PASS, CONDITIONAL, and FAIL verdicts to make every lot traceable and queryable regardless of outcome, which would be more desirable in industry. In addition, this makes the query agent significantly more useful for the SQE team: they can filter by verdict, supplier, date range, and failed checks across the full history.
