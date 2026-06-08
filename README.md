@@ -191,6 +191,7 @@ Three tables underpin the pipeline. All inserts are handled via a Supabase Edge 
 | erp_receipt_posted | boolean | ERP flag |
 | po_acceptance_blocked | boolean | PO block flag |
 
+The lots table has been filled with dummy data in order for the query agent to have more data to answer queries with.
 
 ## Workflow Overview
 
