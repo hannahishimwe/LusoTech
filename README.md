@@ -18,8 +18,8 @@ https://github.com/user-attachments/assets/9d6e034c-005f-4d90-9174-67b3bcbe2530
 
 | Component | Description |
 |---|---|
-| **SQE Pipeline** | End-to-end workflow: email ingestion → CoA extraction → validation → routing → notifications → DB insert |
-| **Query Agent** | Noxus agent for querying lot/NCR/supplier data with guardrails and visual artifacts |
+| **SQE Pipeline** | End-to-end workflow, see below for further explanation |
+| **Query Agent** | Noxus agent for querying lot data |
 | **Migration Script** | CLI tool to migrate the workflow from staging to a target workspace |
 
 
@@ -58,7 +58,7 @@ SUPABASE_KEY=your_supabase_anon_key
 # Build and deploy the SQE workflow to your Noxus workspace
 python main.py --api-key YOUR_NOXUS_API_KEY
 ```
-Then open your Noxus workspace, find **"SQE Pipeline"**, and run it manually inputting the sample email and CoA inputs provided.
+Then open your Noxus workspace, find **"SQE Pipeline"**, and run it manually inputting the sample email and CoA inputs in the data file.
 
 
 
@@ -75,7 +75,7 @@ Then open the agent in your Noxus workspace and ask questions.
 Exports the SQE workflow from staging and imports it into a target workspace.
 
 ```bash
-# Full migration (staging → production)
+# Full migration 
 python migrate.py --target-api-key TARGET_WORKSPACE_KEY
 
 # Overwrite if workflow already exists in target
@@ -87,28 +87,27 @@ The source workspace and workflow ID are hardcoded in `migrate.py`. Command line
 
 ## Project Structure
 
-- main.py — Builds and deploys the SQE workflow
-- migrate.py — Migration CLI
-- config.py — Env config loader
-- agent/agent.py — Query agent builder
-- workflow/extract.py — CoA extraction node
-- workflow/decide.py — Routing and categorisation nodes
-- workflow/act.py — Email, DB insert, NCR draft nodes
-- prompts/extract.txt — Extraction prompt
-- prompts/router.txt — Validation rules prompt
+- `main.py`: Builds and deploys the SQE workflow
+- `migrate.py`: Migration CLI
+- `config.py`: Env config loader
+- `agent/agent.py`: Query agent builder
+- `workflow/extract.py`: CoA extraction node
+- `workflow/decide.py`: Routing and categorisation nodes
+- `workflow/act.py`: Email, DB insert, NCR draft nodes
+- `prompts/extract.txt`: Extraction prompt
+- `prompts/router.txt`: Validation rules prompt
 
 ## Design Decisions/Assumptions
 
 **One email at a time**
-The pipeline is manually triggered with a single email body and attachment as inputs. Each CoA is processed individually — it may be possible the Noxus platform supports iterating over multiple attachments but this was not found during development, and would be something to explore further. In production a loop or fan-out pattern at ingestion would be the ideal approach.
-
+The pipeline is manually triggered with a single email body and attachment as inputs. Each CoA is processed individually.
 
 **Attachment ingested as plain text**
 The CoA attachment is passed into the workflow as extracted text rather than a raw document. The DocumentQA node was explored for PDF ingestion but did not produce structured, predictable extraction output consistently enough to feed reliably into the validation step. Passing the attachment as pre-extracted text gave stable, well-formed JSON every time.
 
 
 **DB insert extended to all verdicts**
-The requirements specified database inserts for passing CoAs only. This was extended to cover PASS, CONDITIONAL, and FAIL verdicts so every lot is traceable and queryable regardless of outcome. This makes the query agent significantly more useful for the SQE team — they can filter by verdict, supplier, date range, and failed checks across the full history.
+The requirements specified database inserts for passing CoAs only. However, I felt this should be extended to cover PASS, CONDITIONAL, and FAIL verdicts to make every lot traceable and queryable regardless of outcome, which would be more desirable in industry. In addition, this makes the query agent significantly more useful for the SQE team: they can filter by verdict, supplier, date range, and failed checks across the full history.
 
 
 **Output nodes instead of live email**
@@ -116,15 +115,15 @@ The notification emails are written to workflow output nodes rather than sent vi
 
 
 **Agent URL construction**
-Rather than using an LLM node to construct full Supabase REST URLs (which proved unreliable in testing), the base URL is hardcoded in the API node and the agent is instructed to supply only the table name and query string. This removes an entire failure point and produces consistent results.
+Rather than using an LLM node to construct full Supabase REST URLs (which proved unreliable in testing), the base URL is hardcoded in the API node and the agent is instructed to supply only the table name and query string. This was done to reduce chance of failures and produce consistent results.
 
 
 **ERP and PO flags represented as database fields**
-The spec defines three actions on verdict: write to ERP, block PO acceptance, and notify warehouse. Without access to a live ERP or PO system, these are represented as boolean fields on the lots table — erp_receipt_posted and po_acceptance_blocked — which are set automatically based on verdict. In a real integration these flags would trigger actual ERP transactions and procurement system updates.
+The spec defines three actions on verdict: write to ERP, block PO acceptance, and notify warehouse. Without access to a live ERP or PO system, I chose to represent these as boolean fields on the lots table: `erp_receipt_posted` and `po_acceptance_blocked`. These are set automatically based on verdict. In a real integration these flags would trigger actual ERP transactions and procurement system updates.
 
 
 **Row Level Security disabled on Supabase**
-RLS (Row Level Security) has been disabled on the Supabase tables to allow the workflow API nodes to read and write without authentication friction during development. This would never be acceptable in production, in a real deployment RLS policies would be enabled and the workflow would authenticate using a service role key scoped to only the operations it needs.
+RLS (Row Level Security) has been disabled on the Supabase tables to allow the workflow API nodes to read and write without authentication friction during development. However I recognise in production RLS policies would be enabled and the workflow would authenticate using a service role key scoped to only the operations it needs.
 
 
 ## Database Schema
@@ -198,21 +197,31 @@ Three tables underpin the pipeline. All inserts are handled via a Supabase Edge 
 
 
 **SQE Pipeline Workflow**
-The pipeline is triggered manually with two inputs — the supplier email body and the CoA attachment as extracted text. It runs left to right across three stages.
+The pipeline is triggered manually with two inputs: the supplier email body and the CoA attachment as extracted text. It runs left to right across three stages.
 
 **Extract**
-The email body and attachment are passed into a TextGenerationNode which extracts all mandatory and optional CoA fields into a structured JSON object — supplier name, PO reference, heat number, lot ID, material grade, chemical composition, and mechanical test results. A passthrough node then re-emits the JSON cleanly to fan out to multiple downstream nodes without interpolation issues.
+The email body and attachment are passed into a TextGenerationNode which extracts all mandatory and optional CoA fields into a structured JSON object: supplier name, PO reference, heat number, lot ID, material grade, chemical composition, and mechanical test results. A passthrough node then re-emits the JSON cleanly to fan out to multiple downstream nodes without interpolation issues.
 
 **Decide**
-The extracted JSON is passed to an EnsembleCategorizerNode which validates every field against the Lusotech DC04 spec (LSQ-SPEC-DC04-r3) and assigns a verdict of PASS, CONDITIONAL, or FAIL with full reasoning. Two chained ComplexConditionalNodes then route the flow to the correct branch — PASS if all values are within tolerance, CONDITIONAL if exactly one non-critical property deviates by no more than 2%, FAIL if any critical property is out of spec or any mandatory field is missing.
+The extracted JSON is passed to an EnsembleCategorizerNode which validates every field against the Lusotech DC04 spec (LSQ-SPEC-DC04-r3) and assigns a verdict of PASS, CONDITIONAL, or FAIL with full reasoning. Two chained ComplexConditionalNodes then route the flow to the correct branch:
+
+- PASS if all values are within tolerance
+- CONDITIONAL if exactly one non-critical property deviates by no more than 2%
+- FAIL if any critical property is out of spec or any mandatory field is missing.
 
 **Act**
-Each branch runs three things in parallel — a database insert via Supabase Edge Function setting the correct lot status (released, held, or quarantined), an email notification generated for the relevant team, and on FAIL an NCR draft is generated before the email. All three branches write to an OutputNode so the result is visible in the Noxus workspace.
+Each branch runs three things in parallel:
+
+- a database insert via Supabase Edge Function setting the correct lot status (released, held, or quarantined)
+- an email notification generated for the relevant team
+- on FAIL: an NCR draft is generated before the email
+
+All three branches write to an OutputNode so the result is visible in the Noxus workspace.
 
 
 ## What's Missing / Noxus Feedback
 
-See [`NOTES.md`](./NOTES.md) for specific gaps found during this build.
+See [`NOTES.md`](./NOTES.md) for potential gaps found during this build.
 
 ## Sample Verdicts
 
@@ -226,16 +235,16 @@ See [`NOTES.md`](./NOTES.md) for specific gaps found during this build.
 
 **Reasoning field causes Supabase insert failures**
 
-- The verdict reasoning generated by the router node is a multi-line block of text that can contain newlines, apostrophes, and parentheses. When this is interpolated directly into the JSON body string in the API node it breaks the JSON structure before it reaches the Edge Function, causing the insert to fail. This was identified by testing with a short single-line value — "100%" — which inserted successfully, confirming the reasoning text itself was the problem rather than the extracted data or schema. Sanitisation of the request body was attempted but did not fully resolve the issue — this remains an open bug that would need further investigation.
+- The verdict reasoning generated by the router node is a multi-line block of text that can contain newlines, apostrophes, and parentheses. When this is interpolated directly into the JSON body string in the API node it breaks the JSON structure before it reaches the Edge Function, causing the insert to fail. This was identified by testing with a short single-line value: "100%" which inserted successfully, confirming the reasoning text itself was the problem rather than the extracted data or schema. Sanitisation of the request body was attempted but did not fully resolve the issue, this remains an open bug that would need further investigation.
   
 **Loop over multiple attachments**
-- The pipeline currently processes one CoA at a time. The sample email contains two attachments, and in production Lusotech receives 200-500 lots per week, often batched per email. A native iterator or fan-out pattern would allow a single email trigger to spawn one pipeline run per attachment automatically. Noxus does not currently have a loop node — this is the biggest architectural gap for production scale. I also recognise the current workflow structure reflects a steep learning curve with the platform and there are likely more efficient patterns I would refactor with more time.
+- The pipeline currently processes one CoA at a time. The sample email contains two attachments, and in production Lusotech receives 200-500 lots per week, often batched per email. I was looking for a native iterator which would allow multiple attachment texts in one input node to spawn a pipeline run per attachment automatically. I also recognise the current workflow structure reflects a steep learning curve with the platform and there are likely more efficient patterns I would refactor with more time.
 
 **Approved supplier validation**
-- A suppliers table exists in the database as a registry of approved vendors. The lots table should reference this on insert, and the pipeline should alert the SQE team if a CoA is received from a supplier not on the approved list — catching rogue or unapproved sources before the lot enters the release flow.
+- I created a suppliers table in the database as a registry of approved vendors. The lots table should reference this on insert, and the pipeline should alert the SQE team if a CoA is received from a supplier not on the approved list, for cases in which for example catching rogue or unapproved sources before the lot enters the release flow would be desirable.
   
 **Store NCR drafts in the database**
-- The lots table already references the NCR table in the schema, but right now the drafted NCR only exists in the notification email — it is never written to the database. Given more time, the FAIL branch would insert the NCR draft into the ncr_drafts table automatically, linked to the lot by ID. This would mean every failed lot has a traceable, queryable NCR record from the moment it is flagged, rather than living only in an email inbox.
+- The lots table already references the NCR table in the schema, but right now the drafted NCR only exists in the notification email and it is not yet written to the database. Given more time, the FAIL branch would insert the NCR draft into the ncr_drafts table automatically, linked to the lot by ID. This would mean every failed lot has a traceable, queryable NCR record from the moment it is flagged, rather than living only in an email inbox.
 
 ## Author
 
