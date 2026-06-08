@@ -1,5 +1,4 @@
 """
-agent.py
 Builds and saves the Lusotech SQE Query Agent on the Noxus platform.
 """
 
