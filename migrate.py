@@ -8,6 +8,7 @@ import json
 import sys
 from noxus_sdk.client import Client
 from config import get_noxus_config
+from noxus_sdk.workflows import WorkflowDefinition
 
 WORKFLOW_ID = "23348f7f-7b3e-4973-8f89-f205836c7f61"
 SOURCE_API_KEY = get_noxus_config().api_key
@@ -22,7 +23,6 @@ def export_workflow(client: Client) -> str:
 
 
 def import_workflow(client: Client, workflow_json: str, overwrite: bool) -> None:
-    from noxus_sdk.workflows import WorkflowDefinition
     wf = WorkflowDefinition.model_validate_json(workflow_json)
 
     for existing in client.workflows.list():
