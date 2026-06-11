@@ -236,7 +236,7 @@ See [`NOTES.md`](./NOTES.md) for potential gaps found during this build.
 | CoA | Verdict | Reason |
 |---|---|---|
 | Acerlux_CoA_998772 | **PASS** | All mandatory fields present, all chemical and mechanical values within spec |
-| Acerlux_CoA_998773 | **CONDITIONAL** | Re_MPa = 215, exceeds upper limit of 210 by 2.4% — single critical deviation |
+| Acerlux_CoA_998773 | **FAIL** | Inspector signature missing - mandatory field |
 
 
 ## Extensions/If I Had More Time
